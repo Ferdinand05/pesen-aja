@@ -4,6 +4,17 @@
             v-show="$page.props.message"
             class="bg-green-500 z-50 fixed top-0 right-0 left-0 ps-16 py-3 font-medium"
         >
+            <svg
+                class="flex-shrink-0 inline w-4 h-4 me-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+            >
+                <path
+                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+                />
+            </svg>
             {{ $page.props.message }} !!!
         </div>
         <header>
@@ -14,7 +25,7 @@
             <div class="flex justify-between mb-5">
                 <h2>{{ subtitle }}</h2>
                 <div class="mr-5 md:mr-5">
-                    <span>Ferdinand | Role</span>
+                    <span>{{ $page.props.auth?.user?.name }} | Role</span>
                 </div>
             </div>
             <slot> </slot>

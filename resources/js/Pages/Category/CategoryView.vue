@@ -2,48 +2,25 @@
     <DashboardLayout title="Categories" subtitle="Categories">
         <div class="space-y-3">
             <div>
-                <ButtonComponent
-                    data-modal-target="modalCategory"
-                    data-modal-toggle="modalCategory"
-                >
-                    Create
-                </ButtonComponent>
-                <ModalComponent id="modalCategory" modalTitle="Create Category">
-                    <form method="post">
-                        <!-- body -->
-                        <div>
-                            <InputComponent
-                                id="name"
-                                label="Name : "
-                                placeholder="Food"
-                                v-model="form.name"
-                                :error="form.errors.name"
-                            ></InputComponent>
-                        </div>
-                    </form>
-                    <div
-                        v-if="$page.props.message"
-                        class="flex items-center p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
-                        role="alert"
-                    >
-                        <svg
-                            class="flex-shrink-0 inline w-4 h-4 me-3"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-                            />
-                        </svg>
-                        <span class="sr-only">Info</span>
-                        <div>
-                            <span class="font-medium">{{
-                                $page.props.message
-                            }}</span>
-                        </div>
-                    </div>
+                <ModalComponent ref="modalRef" buttonType="Create Category">
+                    <template #header>
+                        <h4>Create new Category</h4>
+                    </template>
+                    <template #body>
+                        <form method="post">
+                            <!-- body -->
+                            <div>
+                                <InputComponent
+                                    id="name"
+                                    label="Name : "
+                                    placeholder="Food"
+                                    v-model="form.name"
+                                    :error="form.errors.name"
+                                ></InputComponent>
+                            </div>
+                        </form>
+                    </template>
+
                     <!-- footer -->
                     <template #footer>
                         <button
@@ -57,6 +34,8 @@
                     </template>
                 </ModalComponent>
             </div>
+
+            <!-- table -->
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table
                     class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
@@ -126,22 +105,28 @@
 <script setup>
 import DashboardLayout from "../../../Layouts/DashboardLayout.vue";
 import ModalComponent from "../../../Components/ModalComponent.vue";
-import ButtonComponent from "../../../Components/ButtonComponent.vue";
 import InputComponent from "../../../Components/InputComponent.vue";
 import { useForm } from "@inertiajs/vue3";
 import Swal from "sweetalert2";
+import { ref } from "vue";
 defineProps({
     categories: Array,
 });
 const form = useForm({
     name: null,
 });
+const modalRef = ref(null);
+
+function callCloseModal() {
+    modalRef.value.closeModal();
+}
 
 function createCategory() {
     form.post(route("categories.store"), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset("name");
+            callCloseModal();
         },
     });
 }

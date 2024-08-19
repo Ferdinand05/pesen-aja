@@ -1,9 +1,10 @@
 import "./bootstrap";
-import Swal from "sweetalert2";
 import "flowbite";
+import "../../node_modules/flowbite-vue/dist/index.css";
 import { createApp, h } from "vue";
 import { createInertiaApp, Link } from "@inertiajs/vue3";
 import { ZiggyVue } from "ziggy-js";
+
 createInertiaApp({
     progress: {
         color: "white",
