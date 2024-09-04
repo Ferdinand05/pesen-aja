@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PaymentResources;
 use App\Models\Payment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use PhpParser\Node\Stmt\Catch_;
+use PhpParser\Node\Stmt\TryCatch;
 
 class PaymentController extends Controller
 {
@@ -13,7 +17,8 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Payment/PaymentView');
+        $payments = Payment::orderBy('payment_date', 'desc')->get();
+        return Inertia::render('Payment/PaymentView', ['payments' => PaymentResources::collection($payments)]);
     }
 
     /**
@@ -27,10 +32,7 @@ class PaymentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        //
-    }
+    public function store(Request $request) {}
 
     /**
      * Display the specified resource.

@@ -40,6 +40,14 @@ class HandleInertiaRequests extends Middleware
             'auth.user' => fn() => $request->user()
                 ? $request->user()->only('name', 'role')
                 : null,
+            'order' => [
+                'session_id' => session('session_id'),
+                'customer_name' => session('customer_name'),
+                'table_number' => session('table_number')
+            ],
+            'payment' => [
+                'snapToken' => $request->session()->get('snapToken')
+            ]
         ]);
     }
 }

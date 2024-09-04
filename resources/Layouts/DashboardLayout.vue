@@ -2,7 +2,7 @@
     <main>
         <div
             v-show="$page.props.message"
-            class="bg-green-500 z-50 fixed top-0 right-0 left-0 ps-16 py-3 font-medium"
+            class="bg-green-300 z-50 fixed top-0 right-0 left-0 ps-16 py-3 font-medium"
         >
             <svg
                 class="flex-shrink-0 inline w-4 h-4 me-3"
@@ -25,7 +25,10 @@
             <div class="flex justify-between mb-5">
                 <h2>{{ subtitle }}</h2>
                 <div class="mr-5 md:mr-5">
-                    <span>{{ $page.props.auth?.user?.name }} | Role</span>
+                    <span
+                        >{{ $page.props.auth?.user?.name }} |
+                        {{ $page.props.auth?.user?.role }}</span
+                    >
                 </div>
             </div>
             <slot> </slot>

@@ -234,7 +234,9 @@
                 <li class="border border-gray-200"></li>
                 <li>
                     <Link
-                        href="#"
+                        :href="route('logout')"
+                        as="button"
+                        method="post"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:text-gray-200 dark:hover:bg-gray-700 group"
                     >
                         <svg
