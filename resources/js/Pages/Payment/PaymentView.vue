@@ -5,13 +5,20 @@
             class="grid grid-cols-1 space-y-1 md:space-y-0 md:grid-cols-3 gap-x-3"
         >
             <div>
-                <FwbInput type="date" size="sm"></FwbInput>
+                <FwbInput
+                    type="date"
+                    size="sm"
+                    v-model="formFilter.startDate"
+                    @change="filterDate()"
+                ></FwbInput>
             </div>
             <div>
-                <FwbInput type="date" size="sm"></FwbInput>
-            </div>
-            <div>
-                <FwbButton type="button">Filter</FwbButton>
+                <FwbInput
+                    type="date"
+                    size="sm"
+                    v-model="formFilter.endDate"
+                    @change="filterDate()"
+                ></FwbInput>
             </div>
         </div>
         <main class="my-5">
@@ -42,19 +49,28 @@
                         <fwb-table-cell>{{
                             payment.payment_method
                         }}</fwb-table-cell>
-                        <fwb-table-cell>{{
-                            payment.payment_status
-                        }}</fwb-table-cell>
+                        <fwb-table-cell
+                            ><FwbBadge
+                                :class="
+                                    payment.payment_status == 'deny'
+                                        ? 'bg-red-500'
+                                        : ''
+                                "
+                                >{{ payment.payment_status }}</FwbBadge
+                            ></fwb-table-cell
+                        >
                         <fwb-table-cell>{{
                             payment.payment_date
                         }}</fwb-table-cell>
 
-                        <fwb-table-cell class="flex gap-x-1"
-                            ><FwbButton size="xs">Detail</FwbButton>
-                            <FwbButton size="xs" color="green"
-                                >Print</FwbButton
-                            ></fwb-table-cell
-                        >
+                        <fwb-table-cell class="flex gap-x-1">
+                            <div v-show="payment.payment_status">
+                                <FwbButton size="xs">Detail</FwbButton>
+                                <FwbButton size="xs" color="green"
+                                    >Print</FwbButton
+                                >
+                            </div>
+                        </fwb-table-cell>
                     </fwb-table-row>
                 </fwb-table-body>
             </fwb-table>
@@ -98,11 +114,24 @@ import {
     FwbTableRow,
     FwbButton,
     FwbInput,
+    FwbBadge,
 } from "flowbite-vue";
-
+import { usePage, useForm } from "@inertiajs/vue3";
 defineProps({
     payments: {
         type: Object,
     },
 });
+
+const formFilter = useForm({
+    startDate: null,
+    endDate: null,
+});
+
+function filterDate() {
+    formFilter.get(route("payments.index"), {
+        preserveScroll: true,
+        preserveState: true,
+    });
+}
 </script>

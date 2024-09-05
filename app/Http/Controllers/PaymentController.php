@@ -15,9 +15,17 @@ class PaymentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $payments = Payment::orderBy('payment_date', 'desc')->paginate(6);
+
+        if ($request->startDate || $request->endDate) {
+            $payments = Payment::whereDate('created_at', $request->startDate)->orWhereDate('created_at', $request->endDate)->orderBy('payment_date', 'desc')->paginate(6)->withQueryString();
+        } elseif ($request->startDate && $request->endDate) {
+            $payments = Payment::whereDate('created_at', '>=', $request->startDate)->WhereDate('created_at', '<=', $request->endDate)->orderBy('payment_date', 'desc')->paginate(6)->withQueryString();
+        } else {
+            $payments = Payment::orderBy('payment_date', 'desc')->paginate(6);
+        }
+
         return Inertia::render('Payment/PaymentView', ['payments' => PaymentResources::collection($payments)]);
     }
 
