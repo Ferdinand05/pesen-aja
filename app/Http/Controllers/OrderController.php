@@ -35,7 +35,7 @@ class OrderController extends Controller
 
     public function orderHistory()
     {
-        return Inertia::render('Order/OrderHistory');
+        return Inertia::render('Order/OrderHistoryView', ['orderHistory' => Order::latest()->get()]);
     }
 
 
