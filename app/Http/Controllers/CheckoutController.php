@@ -100,7 +100,6 @@ class CheckoutController extends Controller
                 'order_id' => $order->id,
                 'amount' => $total,
                 'transaction_id' => $snapToken,
-                'payment_date' => Carbon::now('Asia/Jakarta'),
             ]);
 
 
@@ -127,22 +126,30 @@ class CheckoutController extends Controller
 
         $message = $request->message;
 
-        // update status order
-        $order = Order::where('order_code', $message["order_id"])->first();
-        $order->update([
-            'status' => 'dibayar'
-        ]);
+        // jika pesan transaksi ada
+        if ($message) {
 
 
-        // update status dll payment
+            $order = Order::where('order_code', $message["order_id"])->first();
 
-        $paymentMethod = $message["payment_type"] . " - " . $message["bank"];
+            if ($message['transaction_status'] == 'capture') {
+                // update status order jika pembayaran berhasil
+                $order->update([
+                    'status' => 'dibayar'
+                ]);
+            }
 
-        $orderPayment = Payment::where('order_id', $order->id)->update([
-            'payment_method' => $paymentMethod,
-            'payment_status' => $message["transaction_status"],
-            'payment_details' => $message["status_message"] . ' - ' . "Card " . $message["masked_card"],
-            'payment_date' => $message["transaction_time"]
-        ]);
+
+            // update status dll payment
+
+            $paymentMethod = $message["payment_type"] . " - " . $message["bank"];
+
+            $orderPayment = Payment::where('order_id', $order->id)->update([
+                'payment_method' => $paymentMethod,
+                'payment_status' => $message["transaction_status"],
+                'payment_details' => $message["status_message"] . ' - ' . "Card " . $message["masked_card"],
+                'payment_date' => $message["transaction_time"]
+            ]);
+        }
     }
 }

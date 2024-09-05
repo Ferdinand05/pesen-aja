@@ -28,14 +28,14 @@ class DashboardController extends Controller
 
 
         // hitung total tiap bulannya
-        $revenueThisMonth = Order::whereMonth('created_at', $thisMonth)->sum('total');
-        $revenueTwoMonthAgo = Order::whereMonth('created_at', $twoMonthsAgo)->sum('total');
-        $revenueThreeMonthAgo = Order::whereMonth('created_at', $threeMonthsAgo)->sum('total');
+        $revenueThisMonth = Order::whereMonth('created_at', $thisMonth)->whereNot('status', 'menunggu pembayaran')->sum('total');
+        $revenueTwoMonthAgo = Order::whereMonth('created_at', $twoMonthsAgo)->whereNot('status', 'menunggu pembayaran')->sum('total');
+        $revenueThreeMonthAgo = Order::whereMonth('created_at', $threeMonthsAgo)->whereNot('status', 'menunggu pembayaran')->sum('total');
 
         // hitung jumlah Orderan
-        $orderThisMonth = Order::whereMonth('created_at', $thisMonth)->count();
-        $orderTwoMonthAgo = Order::whereMonth('created_at', $twoMonthsAgo)->count();
-        $orderThreeMonthAgo = Order::whereMonth('created_at', $threeMonthsAgo)->count();
+        $orderThisMonth = Order::whereMonth('created_at', $thisMonth)->whereNot('status', 'menunggu pembayaran')->count();
+        $orderTwoMonthAgo = Order::whereMonth('created_at', $twoMonthsAgo)->whereNot('status', 'menunggu pembayaran')->count();
+        $orderThreeMonthAgo = Order::whereMonth('created_at', $threeMonthsAgo)->whereNot('status', 'menunggu pembayaran')->count();
 
         $dataChart = [
             'months' => [$threeMonthsAgoName, $twoMonthsAgoName, $thisMonthName],
@@ -47,10 +47,10 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard/Dashboard', [
             'productCount' => Product::count(),
-            'orderCount' => Order::where('status', 'dibayar')->orWhere('status', 'selesai')->count(),
-            'revenue' => Order::whereMonth('created_at', Carbon::now())->sum('total'),
+            'orderCount' => Order::whereNot('status', 'menunggu pembayaran')->count(),
+            'revenue' => Order::whereNot('status', 'menunggu pembayaran')->whereMonth('created_at', Carbon::now())->sum('total'),
             'orderSelesai' => Order::with('payment')->where('status', 'selesai')->whereDate('created_at', Carbon::now())->get(),
-            'todayRevenue' => Order::whereDate('created_at', Carbon::now())->sum('total'),
+            'todayRevenue' => Order::whereDate('created_at', Carbon::now())->where('status', 'selesai')->sum('total'),
             'dataChart' => $dataChart
         ]);
     }
