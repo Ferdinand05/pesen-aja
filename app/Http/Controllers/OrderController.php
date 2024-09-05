@@ -19,6 +19,26 @@ class OrderController extends Controller
         return Inertia::render('Order/OrderView', ['orders' => OrderResources::collection($orders)]);
     }
 
+    public function selesaiOrder(Request $request)
+    {
+        $order = Order::where('order_code', $request->order_code)->first();
+
+        if ($order->status == 'dibayar') {
+            $order->update([
+                'status' => 'selesai'
+            ]);
+        } else {
+            return back()->with('message', 'Order belum dibayarkan');
+        }
+    }
+
+
+    public function orderHistory()
+    {
+        return Inertia::render('Order/OrderHistory');
+    }
+
+
     /**
      * Show the form for creating a new resource.
      */

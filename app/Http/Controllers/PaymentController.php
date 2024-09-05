@@ -17,7 +17,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payments = Payment::orderBy('payment_date', 'desc')->get();
+        $payments = Payment::orderBy('payment_date', 'desc')->paginate(6);
         return Inertia::render('Payment/PaymentView', ['payments' => PaymentResources::collection($payments)]);
     }
 

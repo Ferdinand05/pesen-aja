@@ -51,7 +51,12 @@
                             {{ order.created_at }}
                         </div>
                         <div class="text-center mt-1">
-                            <FwbButton color="red" size="xs">Selesai</FwbButton>
+                            <FwbButton
+                                color="red"
+                                size="xs"
+                                @click="selesaiOrder(order.order_code)"
+                                >Selesai</FwbButton
+                            >
                         </div>
                     </div>
                 </div>
@@ -65,9 +70,39 @@
 import DashboardLayout from "../../../Layouts/DashboardLayout.vue";
 import { FwbButton } from "flowbite-vue";
 import { useForm, usePage } from "@inertiajs/vue3";
+import Swal from "sweetalert2";
+
 defineProps({
     orders: {
         type: Object,
     },
 });
+
+const formSelesaiOrder = useForm({
+    order_code: null,
+});
+function selesaiOrder(code) {
+    Swal.fire({
+        title: "Apakah pesanan sudah selesai?",
+        text: "pesanan sudah selesai diantar",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, selesaikan!",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            formSelesaiOrder.order_code = code;
+            formSelesaiOrder.post(route("selesai-order"), {
+                onSuccess: () => {
+                    Swal.fire({
+                        title: "Selesai!",
+                        text: "Pesanana telah diselesaikan!",
+                        icon: "success",
+                    });
+                },
+            });
+        }
+    });
+}
 </script>

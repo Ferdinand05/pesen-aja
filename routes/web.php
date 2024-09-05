@@ -29,12 +29,22 @@ Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.st
 Route::post('checkout-update', [CheckoutController::class, 'updateTransactionMessage'])->name('checkout.update');
 
 Route::middleware(['auth'])->group(function () {
+
+
+
+
+
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-
-    Route::resource('dashboard/users', UserController::class);
-    Route::resource('dashboard/categories', CategoryController::class);
-    Route::resource('dashboard/products', ProductController::class);
+    Route::post('order/selesai-order', [OrderController::class, 'selesaiOrder'])->name('selesai-order');
+    Route::get('dashboard/orders-history', [OrderController::class, 'orderHistory'])->name('orders.history');
     Route::resource('dashboard/orders', OrderController::class);
     Route::resource('dashboard/payments', PaymentController::class);
+
+    //SECTION Manager Access
+    Route::middleware('isManager')->group(function () {
+        Route::resource('dashboard/categories', CategoryController::class);
+        Route::resource('dashboard/users', UserController::class);
+        Route::resource('dashboard/products', ProductController::class);
+    });
 });
