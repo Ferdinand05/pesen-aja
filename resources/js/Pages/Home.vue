@@ -297,9 +297,11 @@ function pay() {
         },
         onPending: function (result) {
             formCheckoutUpdate.message = result;
+            updateTransactionMessage();
         },
         onError: function (result) {
             formCheckoutUpdate.message = result;
+            updateTransactionMessage();
         },
         onClose: function () {
             /* You may add your own implementation here */
@@ -307,8 +309,6 @@ function pay() {
         },
     });
 }
-
-console.log(formCheckoutUpdate.message);
 
 function updateTransactionMessage() {
     formCheckoutUpdate.post(route("checkout.update"), {
