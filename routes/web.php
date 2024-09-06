@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('order/selesai-order', [OrderController::class, 'selesaiOrder'])->name('selesai-order');
     Route::get('dashboard/orders-history', [OrderController::class, 'orderHistory'])->name('orders.history');
     Route::resource('dashboard/orders', OrderController::class);
+    Route::get('payments/print-invoice/{order_id}', [PaymentController::class, 'printInvoice'])->name('print.invoice');
     Route::resource('dashboard/payments', PaymentController::class);
 
     //SECTION Manager Access

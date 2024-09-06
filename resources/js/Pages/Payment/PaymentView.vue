@@ -63,10 +63,27 @@
                             payment.payment_date
                         }}</fwb-table-cell>
 
-                        <fwb-table-cell class="flex gap-x-1">
-                            <div v-show="payment.payment_status">
+                        <fwb-table-cell>
+                            <div
+                                v-show="payment.payment_status"
+                                class="flex gap-1"
+                            >
                                 <FwbButton size="xs">Detail</FwbButton>
-                                <FwbButton size="xs" color="green"
+                                <FwbButton
+                                    v-show="payment.payment_status == 'capture'"
+                                    size="xs"
+                                    color="green"
+                                    @click="
+                                        printInvoice(
+                                            payment.order.customer_name,
+                                            payment.order.table_number,
+                                            payment.order_items,
+                                            payment.payment_date,
+                                            payment.payment_method,
+                                            payment.order.order_code,
+                                            payment.payment_status
+                                        )
+                                    "
                                     >Print</FwbButton
                                 >
                             </div>
@@ -104,6 +121,9 @@
 
 <script setup>
 import DashboardLayout from "../../../Layouts/DashboardLayout.vue";
+import { ref } from "vue";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
     FwbA,
     FwbTable,
@@ -116,7 +136,7 @@ import {
     FwbInput,
     FwbBadge,
 } from "flowbite-vue";
-import { usePage, useForm } from "@inertiajs/vue3";
+import { usePage, useForm, router } from "@inertiajs/vue3";
 defineProps({
     payments: {
         type: Object,
@@ -133,5 +153,96 @@ function filterDate() {
         preserveScroll: true,
         preserveState: true,
     });
+}
+
+function printInvoice(
+    customer_name,
+    table_number,
+    order_items,
+    payment_date,
+    payment_method,
+    order_code,
+    payment_status
+) {
+    const orderItems = ref(order_items);
+    var doc = new jsPDF({
+        orientation: "p",
+        unit: "mm",
+        format: "a6",
+        putOnlyUsedFonts: true,
+    });
+
+    const date = new Date();
+    const printDate = Intl.DateTimeFormat("id", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    }).format(date);
+
+    doc.setFontSize(18);
+    doc.text("PesenAja", 7, 7);
+    doc.setFontSize(10);
+    doc.text(`Order Code : #${order_code}`, 7, 15);
+    doc.text(`Payment date : ${payment_date}`, 7, 20);
+    doc.text(`Payment Status : ${payment_status}`, 7, 25);
+    doc.text(`Customer name : ${customer_name}`, 7, 30);
+    doc.text(`Table number :  ${table_number}`, 7, 35);
+    doc.text(`Payment method : ${payment_method}`, 7, 40);
+
+    // Data untuk tabel
+    const tableColumn = ["Product", "Quantity", "Price", "Subtotal"];
+    const tableRows = orderItems.value.map((item) => [
+        item.product,
+        item.quantity,
+        `${item.price}`,
+        `${item.quantity * item.price}`,
+    ]);
+
+    // Menambahkan total ke baris terakhir
+    const totalAmount = orderItems.value.reduce(
+        (sum, item) => sum + item.quantity * item.price,
+        0
+    );
+    tableRows.push([
+        {
+            content: "Total",
+            colSpan: 3,
+            styles: { halign: "right" },
+        },
+        `Rp. ${totalAmount}`,
+    ]);
+
+    // Generate table
+    doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 45,
+        margin: { left: 7, bottom: 10 },
+        theme: "grid",
+    });
+
+    // Tambahkan teks pertama di bawah tabel
+    doc.text(
+        "Thank you for your purchase!",
+        7,
+        doc.autoTable.previous.finalY + 10
+    );
+
+    // Tambahkan teks kedua di bawah teks pertama
+    doc.text(
+        "If you have any questions, feel free to contact us.",
+        7,
+        doc.autoTable.previous.finalY + 15
+    );
+    doc.setFontSize(8);
+    doc.text(
+        `Dicetak pada ${printDate}`,
+        7,
+        doc.autoTable.previous.finalY + 20
+    );
+
+    doc.save("order-invoice.pdf");
 }
 </script>

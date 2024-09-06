@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PaymentResources;
+use App\Models\Order;
 use App\Models\Payment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,6 +30,10 @@ class PaymentController extends Controller
 
         return Inertia::render('Payment/PaymentView', ['payments' => PaymentResources::collection($payments)]);
     }
+
+
+    public function printInvoice(Request $request) {}
+
 
     /**
      * Show the form for creating a new resource.

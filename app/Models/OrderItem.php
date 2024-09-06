@@ -11,12 +11,8 @@ class OrderItem extends Model
     use HasFactory;
     protected $fillable = ['order_id', 'product_id', 'quantity', 'price'];
 
-    /**
-     * Get the product that owns the OrderItem
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function product(): BelongsTo
+
+    public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }

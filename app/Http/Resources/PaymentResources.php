@@ -22,7 +22,14 @@ class PaymentResources extends JsonResource
             'payment_date' => $this->payment_date,
             'payment_details' => $this->payment_details,
             'order_id' => $this->order_id,
-            'order' => $this->order
+            'order' => $this->order,
+            'order_items' => $this->order->orderItems->map(function ($item) {
+                return [
+                    'product' => $item->product->name,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                ];
+            })
         ];
     }
 }
