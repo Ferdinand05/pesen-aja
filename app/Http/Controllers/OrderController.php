@@ -16,6 +16,7 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::where('status', 'dibayar')->get();
+        Inertia::share('orders.data', OrderResources::collection($orders));
         return Inertia::render('Order/OrderView', ['orders' => OrderResources::collection($orders)]);
     }
 
@@ -33,9 +34,23 @@ class OrderController extends Controller
     }
 
 
-    public function orderHistory()
+    public function orderHistory(Request $request)
     {
-        return Inertia::render('Order/OrderHistoryView', ['orderHistory' => Order::latest()->get()]);
+
+        if ($request->startDate || $request->endDate) {
+
+            $orderHistory = Order::whereDate('created_at', $request->startDate)->orWhereDate('created_at', $request->endDate)
+                ->orderBy('status', 'asc')->latest()->paginate(5)->withQueryString();
+        } elseif ($request->startDate && $request->endDate) {
+            $orderHistory = Order::whereDate('created_at', '>=', $request->startDate)->WhereDate('created_at', '<=', $request->endDate)
+                ->orderBy('status', 'asc')->latest()->paginate(5)->withQueryString();
+        } else {
+            $orderHistory = Order::orderBy('status', 'asc')->latest()->paginate(5)->withQueryString();
+        }
+
+
+
+        return Inertia::render('Order/OrderHistoryView', ['orderHistory' => $orderHistory]);
     }
 
 

@@ -184,7 +184,11 @@
                                 ></path>
                             </g>
                         </svg>
-                        <span class="ms-3">Orders</span>
+                        <span class="ms-3"
+                            >Orders ({{
+                                $page.props.orders?.data.length ?? 0
+                            }})</span
+                        >
                     </Link>
                 </li>
                 <li>

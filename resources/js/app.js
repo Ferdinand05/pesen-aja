@@ -7,7 +7,7 @@ import { ZiggyVue } from "ziggy-js";
 
 createInertiaApp({
     progress: {
-        color: "white",
+        color: "blue",
         showSpinner: true,
     },
     resolve: (name) => {

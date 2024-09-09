@@ -1,5 +1,10 @@
 <template>
-    <fwb-button @click="showModal" size="sm"> {{ buttonType }} </fwb-button>
+    <fwb-button
+        @click="showModal"
+        :size="$page.url == '/dashboard/payments' ? 'xs' : 'sm'"
+    >
+        {{ buttonType }}
+    </fwb-button>
 
     <fwb-modal v-if="isShowModal" @close="closeModal">
         <template #header>

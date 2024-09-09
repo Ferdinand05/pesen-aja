@@ -40,6 +40,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard/orders-history', [OrderController::class, 'orderHistory'])->name('orders.history');
     Route::resource('dashboard/orders', OrderController::class);
     Route::get('payments/print-invoice/{order_id}', [PaymentController::class, 'printInvoice'])->name('print.invoice');
+    Route::get('payments/export-pdf', [PaymentController::class, 'exportPdf'])->name('export.pdf');
+    Route::get('payments/export-excel', [PaymentController::class, 'exportExcel'])->name('export.excel');
     Route::resource('dashboard/payments', PaymentController::class);
 
     //SECTION Manager Access

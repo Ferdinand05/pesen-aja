@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\PaymentResources;
+use Carbon\Carbon;
+use Inertia\Inertia;
 use App\Models\Order;
 use App\Models\Payment;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
+use Barryvdh\DomPDF\Facade\Pdf;
 use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\TryCatch;
+use App\Http\Resources\OrderResources;
+use App\Http\Resources\PaymentResources;
+use Illuminate\Support\Arr;
 
 class PaymentController extends Controller
 {
@@ -28,11 +30,36 @@ class PaymentController extends Controller
             $payments = Payment::orderBy('payment_date', 'desc')->paginate(6);
         }
 
-        return Inertia::render('Payment/PaymentView', ['payments' => PaymentResources::collection($payments)]);
+
+        $orders = Order::where('status', 'dibayar')->get();
+
+
+        return Inertia::render('Payment/PaymentView', [
+            'payments' => PaymentResources::collection($payments),
+            'orders' => OrderResources::collection($orders)
+        ]);
+    }
+
+    public function exportPdf(Request $request)
+    {
+
+        if ($request->startDate || $request->endDate) {
+            $payments = Payment::whereDate('created_at', $request->startDate)->orWhereDate('created_at', $request->endDate)->where('payment_status', 'capture')->orderBy('payment_date', 'desc')->get();
+        } elseif ($request->startDate && $request->endDate) {
+            $payments = Payment::whereDate('created_at', '>=', $request->startDate)->WhereDate('created_at', '<=', $request->endDate)->where('payment_status', 'capture')->orderBy('payment_date', 'desc')->get();
+        } else {
+            $payments = Payment::orderBy('payment_date', 'desc')->where('payment_status', 'capture')->get();
+        }
+
+        return back()->with('filterPaymentData', PaymentResources::collection($payments));
     }
 
 
-    public function printInvoice(Request $request) {}
+    public function exportExcel(Request $request)
+    {
+        return $request->all();
+    }
+
 
 
     /**

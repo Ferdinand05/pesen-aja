@@ -20,6 +20,14 @@
                     @change="filterDate()"
                 ></FwbInput>
             </div>
+            <div class="space-x-2">
+                <FwbButton size="sm" color="green" @click="exportPdf()"
+                    >Export as PDF</FwbButton
+                >
+                <FwbButton size="sm" color="dark" @click="exportExcel()"
+                    >Export as Excel</FwbButton
+                >
+            </div>
         </div>
         <main class="my-5">
             <fwb-table striped-columns>
@@ -64,15 +72,119 @@
                         }}</fwb-table-cell>
 
                         <fwb-table-cell>
-                            <div
-                                v-show="payment.payment_status"
-                                class="flex gap-1"
-                            >
-                                <FwbButton size="xs">Detail</FwbButton>
+                            <div v-show="payment.payment_status" class="flex">
+                                <ModalComponent buttonType="Detail">
+                                    <template #header>
+                                        <div class="space-x-2">
+                                            <span class="text-lg">{{
+                                                payment.order.customer_name
+                                            }}</span>
+                                            <span>
+                                                #{{ payment.order.order_code }}
+                                            </span>
+                                        </div>
+                                    </template>
+                                    <template #body>
+                                        <div
+                                            class="text-start space-y-2 border-b pb-2"
+                                        >
+                                            <div>
+                                                <div>Status</div>
+                                                <div class="font-medium">
+                                                    <div class="flex">
+                                                        <FwbBadge
+                                                            :type="
+                                                                payment.payment_status ==
+                                                                'deny'
+                                                                    ? 'red'
+                                                                    : 'default'
+                                                            "
+                                                            >{{
+                                                                payment.payment_status
+                                                            }}</FwbBadge
+                                                        >
+                                                        <FwbBadge
+                                                            :type="
+                                                                payment.order
+                                                                    .status ==
+                                                                'menunggu pembayaran'
+                                                                    ? 'red'
+                                                                    : 'yellow'
+                                                            "
+                                                            >{{
+                                                                payment.order
+                                                                    .status
+                                                            }}</FwbBadge
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div>Table Number</div>
+                                                <div class="font-medium">
+                                                    {{
+                                                        payment.order
+                                                            .table_number
+                                                    }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div>Payment Date</div>
+                                                <div class="font-medium">
+                                                    {{ payment.payment_date }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div>Payment Method</div>
+                                                <div class="font-medium">
+                                                    {{ payment.payment_method }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div>Payment Detail</div>
+                                                <div class="font-medium">
+                                                    {{
+                                                        payment.payment_details
+                                                    }}
+                                                </div>
+                                            </div>
+                                            <div class="border-t pt-1">
+                                                <ul>
+                                                    <li
+                                                        v-for="item in payment.order_items"
+                                                    >
+                                                        {{ item.product }} ({{
+                                                            item.quantity
+                                                        }}
+                                                        x
+                                                        {{
+                                                            Intl.NumberFormat(
+                                                                "id"
+                                                            ).format(
+                                                                item.price
+                                                            )
+                                                        }})
+                                                    </li>
+                                                    <li>
+                                                        Total :
+                                                        {{
+                                                            Intl.NumberFormat(
+                                                                "id"
+                                                            ).format(
+                                                                payment.amount
+                                                            )
+                                                        }}
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </ModalComponent>
                                 <FwbButton
                                     v-show="payment.payment_status == 'capture'"
                                     size="xs"
                                     color="green"
+                                    class="ms-1"
                                     @click="
                                         printInvoice(
                                             payment.order.customer_name,
@@ -124,6 +236,7 @@ import DashboardLayout from "../../../Layouts/DashboardLayout.vue";
 import { ref } from "vue";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import ModalComponent from "../../../Components/ModalComponent.vue";
 import {
     FwbA,
     FwbTable,
@@ -142,6 +255,7 @@ defineProps({
         type: Object,
     },
 });
+const page = usePage({});
 
 const formFilter = useForm({
     startDate: null,
@@ -155,6 +269,7 @@ function filterDate() {
     });
 }
 
+// print payment invoice
 function printInvoice(
     customer_name,
     table_number,
@@ -244,5 +359,88 @@ function printInvoice(
     );
 
     doc.save("order-invoice.pdf");
+}
+
+// export
+const formExport = useForm({
+    startDate: null,
+    endDate: null,
+});
+
+const filteredData = ref([]);
+function exportPdf() {
+    formExport.startDate = formFilter.startDate;
+    formExport.endDate = formFilter.endDate;
+
+    formExport.get(route("export.pdf"), {
+        onSuccess: (results) => {
+            filteredData.value = results.props.flash.filterPaymentData.data;
+        },
+        onFinish: () => {
+            var doc = new jsPDF({
+                orientation: "p",
+                unit: "mm",
+                format: "a4",
+                putOnlyUsedFonts: true,
+            });
+
+            const date = new Date();
+            const printDate = Intl.DateTimeFormat("id", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            }).format(date);
+
+            // pdf
+            // Data untuk tabel
+            const tableColumn = [
+                "Order Code",
+                "Amount",
+                "Date",
+                "Method",
+                "Status",
+            ];
+            const tableRows = filteredData.value.map((item) => [
+                item.order.order_code,
+                item.amount,
+                item.payment_date,
+                item.payment_method,
+                item.payment_status,
+            ]);
+
+            // Menambahkan total ke baris terakhir
+            const totalAmount = filteredData.value.reduce(
+                (sum, item) => sum + item.amount,
+                0
+            );
+
+            // Generate table
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 5,
+                margin: { left: 10, bottom: 10 },
+                theme: "grid",
+            });
+
+            // Tambahkan teks pertama di bawah tabel
+            doc.text(
+                `Total Amount : ${totalAmount}`,
+                7,
+                doc.autoTable.previous.finalY + 10
+            );
+
+            doc.setFontSize(8);
+            doc.text(
+                `Dicetak pada ${printDate}`,
+                10,
+                doc.autoTable.previous.finalY + 20
+            );
+
+            doc.save("laporan-payment.pdf");
+        },
+    });
 }
 </script>

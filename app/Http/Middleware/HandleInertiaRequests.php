@@ -47,6 +47,9 @@ class HandleInertiaRequests extends Middleware
             ],
             'payment' => [
                 'snapToken' => $request->session()->get('snapToken')
+            ],
+            'flash' => [
+                'filterPaymentData' => session('filterPaymentData')
             ]
         ]);
     }

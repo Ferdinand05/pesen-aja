@@ -17,9 +17,7 @@ import {
     BarElement,
     CategoryScale,
     LinearScale,
-    scales,
 } from "chart.js";
-
 ChartJS.register(
     Title,
     Tooltip,

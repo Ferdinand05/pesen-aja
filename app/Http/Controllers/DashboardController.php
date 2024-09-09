@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use Inertia\Inertia;
 use App\Models\Order;
 use App\Models\Product;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
+use App\Http\Resources\OrderResources;
 
 class DashboardController extends Controller
 {
@@ -44,6 +45,8 @@ class DashboardController extends Controller
         ];
 
 
+        $orders = Order::where('status', 'dibayar')->get();
+
 
         return Inertia::render('Dashboard/Dashboard', [
             'productCount' => Product::count(),
@@ -51,7 +54,8 @@ class DashboardController extends Controller
             'revenue' => Order::whereNot('status', 'menunggu pembayaran')->whereMonth('created_at', Carbon::now())->sum('total'),
             'orderSelesai' => Order::with('payment')->where('status', 'selesai')->whereDate('created_at', Carbon::now())->get(),
             'todayRevenue' => Order::whereDate('created_at', Carbon::now())->where('status', 'selesai')->sum('total'),
-            'dataChart' => $dataChart
+            'dataChart' => $dataChart,
+            'orders' => OrderResources::collection($orders)
         ]);
     }
 }
