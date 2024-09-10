@@ -24,6 +24,7 @@
         "sweetalert2": "^11.12.4",
         "vue": "^3.4.37",
         "vue-chartjs": "^5.3.1",
-        "vue-sweetalert2": "^5.0.11"
+        "vue-sweetalert2": "^5.0.11",
+        "xlsx": "^0.18.5"
     }
 }

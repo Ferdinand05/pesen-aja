@@ -57,7 +57,15 @@ class PaymentController extends Controller
 
     public function exportExcel(Request $request)
     {
-        return $request->all();
+        if ($request->startDate || $request->endDate) {
+            $payments = Payment::whereDate('created_at', $request->startDate)->orWhereDate('created_at', $request->endDate)->where('payment_status', 'capture')->orderBy('payment_date', 'desc')->get();
+        } elseif ($request->startDate && $request->endDate) {
+            $payments = Payment::whereDate('created_at', '>=', $request->startDate)->WhereDate('created_at', '<=', $request->endDate)->where('payment_status', 'capture')->orderBy('payment_date', 'desc')->get();
+        } else {
+            $payments = Payment::orderBy('payment_date', 'desc')->where('payment_status', 'capture')->get();
+        }
+
+        return back()->with('filterPaymentData', PaymentResources::collection($payments));
     }
 
 

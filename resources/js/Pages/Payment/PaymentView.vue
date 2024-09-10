@@ -237,6 +237,8 @@ import { ref } from "vue";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import ModalComponent from "../../../Components/ModalComponent.vue";
+import * as XLSX from "xlsx/xlsx.mjs";
+import * as fs from "fs";
 import {
     FwbA,
     FwbTable,
@@ -440,6 +442,54 @@ function exportPdf() {
             );
 
             doc.save("laporan-payment.pdf");
+        },
+    });
+}
+
+// export excel
+function exportExcel() {
+    formExport.startDate = formFilter.startDate;
+    formExport.endDate = formFilter.endDate;
+
+    formExport.get(route("export.excel"), {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: (results) => {
+            filteredData.value = results.props.flash.filterPaymentData.data;
+        },
+        onFinish: () => {
+            // export to excel
+            const rows = filteredData.value.map((row) => ({
+                order_code: row.order.order_code,
+                customer_name: row.order.customer_name,
+                amount: row.amount,
+                date: row.payment_date,
+                method: row.payment_method,
+                status: row.payment_status,
+            }));
+
+            // generate excel
+            const worksheet = XLSX.utils.json_to_sheet(rows);
+            const workbook = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Payment Report");
+
+            XLSX.utils.sheet_add_aoa(
+                worksheet,
+                [
+                    [
+                        "Order Code",
+                        "Customer Name",
+                        "Amount",
+                        "Date",
+                        "Method",
+                        "Status",
+                    ],
+                ],
+                { origin: "A1" }
+            );
+
+            XLSX.writeFile(workbook, "payment-reports.xlsx");
         },
     });
 }
