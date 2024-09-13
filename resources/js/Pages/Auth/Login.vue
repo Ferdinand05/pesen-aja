@@ -82,10 +82,10 @@
                                         >
                                     </div>
                                 </div>
-                                <a
-                                    href="#"
+                                <Link
+                                    :href="route('forgot.password')"
                                     class="text-sm font-medium text-green-600 hover:underline dark:text-green-500"
-                                    >Forgot password?</a
+                                    >Forgot password?</Link
                                 >
                             </div>
                             <button

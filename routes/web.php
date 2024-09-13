@@ -10,7 +10,9 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\TemporaryOrderController;
+use App\Mail\ResetPassword;
 use App\Models\Product;
 use App\Models\TemporaryOrder;
 use Inertia\Inertia;
@@ -20,19 +22,20 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'store'])->name('login.store');
 
+//SECTION - Reset password
+Route::get('forgot-password', [ResetPasswordController::class, 'forgotPassword'])->name('forgot.password');
+Route::post('send-email', [ResetPasswordController::class, 'sendEmail'])->name('send.email');
+Route::get('password/reset/{token}', [ResetPasswordController::class, 'resetPassword'])->name('reset.password');
+Route::post('password/reset', [ResetPasswordController::class, 'updatePassword'])->name('update.password');
+// end
 
 Route::post('temporary-order', [TemporaryOrderController::class, 'store'])->name('temporary-order.store');
 Route::post('delete-order', [TemporaryOrderController::class, 'deleteOrder'])->name('temporary-order.delete');
 Route::delete('cancel-order', [TemporaryOrderController::class, 'cancelOrder'])->name('temporary-order.cancel');
 Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-
 Route::post('checkout-update', [CheckoutController::class, 'updateTransactionMessage'])->name('checkout.update');
 
 Route::middleware(['auth'])->group(function () {
-
-
-
-
 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');

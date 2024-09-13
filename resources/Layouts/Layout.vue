@@ -1,6 +1,9 @@
 <template>
     <Head :title="title"></Head>
     <main>
+        <div class="bg-green-300 p-2" v-if="$page.props.message">
+            {{ $page.props.message }}
+        </div>
         <header>
             <Navbar></Navbar>
         </header>
